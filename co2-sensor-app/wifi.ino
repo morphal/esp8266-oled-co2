@@ -13,26 +13,56 @@ void init_wifi()
 
   if(wifiManager.tryConnect())
   {    
-    currentSSID = WiFi.SSID();
-    currentIp = ipToString(WiFi.localIP());  
+    connectedToWifi();
   }
   /*
   //Если не удалось подключиться клиентом запускаем режим AP
   // доступ к настройкам по адресу http://192.168.4.1 
   wifiManager.autoConnect("AutoConnectAP");
-
-  //здесь мы уже подключены к вайфай сети
-  
-  currentSSID = WiFi.SSID();
-  currentIp = ipToString(WiFi.localIP());  
   
   //настраиваем HTTP интерфейс
   HTTP_init();
+*/
+  
+}
 
-  //запускаем SSDP сервис 
-  Serial.printf("Starting SSDP...\n");
-  SSDP_init();
-  Serial.printf("SSDP Ready!\n");*/
+void handleAPmode() {
+  
+        // проверяем включенность портала настройки
+        if(!wifiManager.isConfigPortalStarted())
+        {
+          //стартуем конфигурационнный портал
+          wifiManager.startConfigPortal("esp-wifi");  
+        }
+        else
+        {
+          // если включен портал, то пытаемся обработать введенные в нем данные
+          if(wifiManager.processConfigPortalEnteredData() == true)
+          {
+              //если портал сказал, что введенные данные можно проверить на подключаемость -- пробуем
+              if(wifiManager.resetAndCheckConnection())
+              {                
+                connectedToWifi();
+              }
+          }           
+        }
+}
+
+void connectedToWifi()
+{
+    currentSSID = WiFi.SSID();
+    currentIp = ipToString(WiFi.localIP());
+
+    ticker.attach(4, tick);
+    
+    HTTP_init();
+    
+    //запускаем SSDP сервис 
+    Serial.printf("Starting SSDP...\n");
+    SSDP_init();
+    Serial.printf("SSDP Ready!\n");
+
+    ui.transitionToFrame(1);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {

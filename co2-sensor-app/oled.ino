@@ -102,11 +102,20 @@ void wiFiLogoFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, i
   }
 }
 
+void wiFiClientFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+  
+  display->setFont(ArialMT_Plain_16);
+
+  display->drawString(0, 16, "PPM:");
+  
+  display->drawString(50, 26, String(lastAIQ));
+}
+
 // This array keeps function pointers to all frames
 // frames are the single views that slide in
-FrameCallback frames[] = { wiFiLogoFrame };
+FrameCallback frames[] = { wiFiLogoFrame, wiFiClientFrame };
 // how many frames are there?
-int frameCount = 1;
+int frameCount = 2;
 
 // Overlays are statically drawn on top of a frame eg. a clock
 OverlayCallback overlays[] = { ipOverlay };

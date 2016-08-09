@@ -14,6 +14,7 @@
 //needed for library
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
 #include "WiFiManager.h"         //https://github.com/tzapu/WiFiManager
 #include <ESP8266SSDP.h>
 
@@ -38,49 +39,53 @@ String currentIp = "";
 //for LED status
 #include <Ticker.h>
 Ticker ticker;
+Ticker measureTicker;
+
+float valAIQ = 0.0;
+float lastAIQ = 0.0;
 
 void tick()
 {
   digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  if (wifiManager.isConectedAsClient())
+  {
+    //ui.nextFrame();
+  }
+}
+
+void co2Mesaure()
+{
+  co2_measure();
+  sentToTT();
 }
 
 void setup() {
   Serial.begin(115200);
+
   pinMode(LED_PIN, OUTPUT);
-  
+
   init_oled();
-  
-  init_wifi();  
+  ui.update();
+
+  ticker.attach(0.5, tick);
+
+  init_wifi();
+
+  co2_init();
+
+  measureTicker.attach(5, co2Mesaure);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   int remainingTimeBudget = ui.update();
-  
+
   //Serial.println(remainingTimeBudget);
   if (remainingTimeBudget > 0) {
-    /// если не подключены к внешней сети wifi 
-    if(!wifiManager.isConectedAsClient())
-    {   
-        // проверяем включенность портала настройки
-        if(!wifiManager.isConfigPortalStarted())
-        {
-          //стартуем конфигурационнный портал
-          wifiManager.startConfigPortal("esp-wifi");  
-        }
-        else
-        {
-          // если включен портал, то пытаемся обработать введенные в нем данные
-          if(wifiManager.processConfigPortalEnteredData() == true)
-          {
-              //если портал сказал, что введенные данные можно проверить на подключаемость -- пробуем
-              if(wifiManager.resetAndCheckConnection())
-              {                
-                currentSSID = WiFi.SSID();
-                currentIp = ipToString(WiFi.localIP());  
-              }
-          }           
-        }
+    /// если не подключены к внешней сети wifi
+    if (!wifiManager.isConectedAsClient())
+    {
+      handleAPmode();
     }
     else
     {
@@ -90,6 +95,6 @@ void loop() {
       //delay(remainingTimeBudget);
       HTTP.handleClient();
       delay(1);
-    }    
+    }
   }
 }
