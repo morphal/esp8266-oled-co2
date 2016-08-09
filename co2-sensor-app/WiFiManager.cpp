@@ -77,7 +77,7 @@ void WiFiManager::setupConfigPortal() {
   DEBUG_WM(F(""));
   _configPortalStart = millis();
 
-  DEBUG_WM(F("Configuring access point... "));
+  DEBUG_WM(F("Configuring access point..."));
   DEBUG_WM(_apName);
   if (_apPassword != NULL) {
     if (strlen(_apPassword) < 8 || strlen(_apPassword) > 63) {
@@ -131,6 +131,12 @@ boolean WiFiManager::autoConnect() {
 boolean WiFiManager::isConfigPortalStarted(){
 
   return _configPortalStarted;
+
+}
+
+boolean WiFiManager::isConectedAsClient() {
+
+  return WiFi.status() == WL_CONNECTED;;
 
 }
 
@@ -189,11 +195,12 @@ void WiFiManager::startConfigPortal(char const *apName, char const *apPassword) 
 }
 
 boolean WiFiManager::processConfigPortalEnteredData() {
-    
-    DEBUG_WM(F("if(_configPortalTimeout"));
-    if(_configPortalTimeout != 0 || millis() >= _configPortalStart + _configPortalTimeout)
+        
+    if(_configPortalTimeout != 0 && millis() >= _configPortalStart + _configPortalTimeout)
+    {
       return true;
-    
+    }
+      
     //DNS
     dnsServer->processNextRequest();
     //HTTP
@@ -235,7 +242,7 @@ boolean WiFiManager::processConfigPortalEnteredData() {
       }
     }
     else {
-      DEBUG_WM(F("No connect flag."));
+      //DEBUG_WM(F("No connect flag."));
     }
 
     return false;
@@ -246,7 +253,9 @@ boolean WiFiManager::resetAndCheckConnection() {
   server.reset();
   dnsServer.reset();
 
-  return  WiFi.status() == WL_CONNECTED;
+  _isConectedAsClient =  WiFi.status() == WL_CONNECTED;
+
+  return _isConectedAsClient;
 }
 
 boolean WiFiManager::startConfigPortalBlocking(char const *apName, char const *apPassword) {

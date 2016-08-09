@@ -65,7 +65,7 @@ class WiFiManager
 {
   public:
     WiFiManager();
-
+    boolean       isConectedAsClient();
     boolean       isConfigPortalStarted();
     boolean       tryConnect();
     boolean       autoConnect();
@@ -133,6 +133,7 @@ class WiFiManager
     unsigned long _connectTimeout         = 0;
     unsigned long _configPortalStart      = 0;
     boolean       _configPortalStarted    = false;
+    boolean       _isConectedAsClient     = false;
 
     IPAddress     _ap_static_ip;
     IPAddress     _ap_static_gw;

@@ -14,7 +14,7 @@
 //needed for library
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+#include "WiFiManager.h"         //https://github.com/tzapu/WiFiManager
 #include <ESP8266SSDP.h>
 
 /*Конец: для wifi*/
@@ -22,6 +22,7 @@
 /// работает на 4 и 5 порту
 #define SDA_PIN 4
 #define SCL_PIN 5
+#define LED_PIN 2
 
 // Initialize the OLED display using Wire library
 SSD1306  display(0x3c, SDA_PIN, SCL_PIN);
@@ -33,30 +34,21 @@ WiFiManager wifiManager;
 
 String currentSSID = "";
 String currentIp = "";
-bool initConnectionSucceeded = false;
 
 //for LED status
 #include <Ticker.h>
 Ticker ticker;
-bool isBlocked = false;
+
 void tick()
 {
-  if (isBlocked)
-  {
-    ui.update();
-    digitalWrite(2, ~digitalRead(2));
-  }
-  else{
-    digitalWrite(2, 1);  
-  }
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 }
 
 void setup() {
   Serial.begin(115200);
-  pinMode(2, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   
   init_oled();
-  ui.update();
   
   init_wifi();  
 }
@@ -67,32 +59,37 @@ void loop() {
   
   //Serial.println(remainingTimeBudget);
   if (remainingTimeBudget > 0) {
-    /// если первая попытка подключения после включения оказалась безуспешна    
-    if(!initConnectionSucceeded)
+    /// если не подключены к внешней сети wifi 
+    if(!wifiManager.isConectedAsClient())
     {   
         // проверяем включенность портала настройки
         if(!wifiManager.isConfigPortalStarted())
         {
+          //стартуем конфигурационнный портал
           wifiManager.startConfigPortal("esp-wifi");  
         }
         else
         {
+          // если включен портал, то пытаемся обработать введенные в нем данные
           if(wifiManager.processConfigPortalEnteredData() == true)
           {
-              bool cocted = wifiManager.resetAndCheckConnection();
-          }
-          else
-          {
-            Serial.print("Connected");
-          }            
+              //если портал сказал, что введенные данные можно проверить на подключаемость -- пробуем
+              if(wifiManager.resetAndCheckConnection())
+              {                
+                currentSSID = WiFi.SSID();
+                currentIp = ipToString(WiFi.localIP());  
+              }
+          }           
         }
     }
-    
-    // You can do some work here
-    // Don't do stuff if you are below your
-    // time budget.
-    //delay(remainingTimeBudget);
-    HTTP.handleClient();
-    delay(1);
+    else
+    {
+      // You can do some work here
+      // Don't do stuff if you are below your
+      // time budget.
+      //delay(remainingTimeBudget);
+      HTTP.handleClient();
+      delay(1);
+    }    
   }
 }

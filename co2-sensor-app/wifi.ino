@@ -1,20 +1,25 @@
 
 void init_wifi()
 {
+  HTTP_init();
+   
   wifiManager.setDebugOutput(true);
   
   //reset settings - for testing
-  wifiManager.resetSettings();
+  //wifiManager.resetSettings();
   
   //устанавливаем колбэк, который будет вызван при входе в конфиг режим
   wifiManager.setAPCallback(configModeCallback);
 
-  initConnectionSucceeded = wifiManager.tryConnect();
+  if(wifiManager.tryConnect())
+  {    
+    currentSSID = WiFi.SSID();
+    currentIp = ipToString(WiFi.localIP());  
+  }
   /*
   //Если не удалось подключиться клиентом запускаем режим AP
   // доступ к настройкам по адресу http://192.168.4.1 
   wifiManager.autoConnect("AutoConnectAP");
-
 
   //здесь мы уже подключены к вайфай сети
   
@@ -31,8 +36,7 @@ void init_wifi()
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
-  isBlocked = false;
-  
+
   Serial.println("Entered config mode");
   Serial.println(WiFi.softAPIP());
 
@@ -40,8 +44,6 @@ void configModeCallback (WiFiManager *myWiFiManager) {
     
   currentSSID = ssid;
   currentIp = ipToString(WiFi.localIP()); 
-
-  ui.update();
   
   Serial.println(ssid);
 }
