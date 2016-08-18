@@ -53,10 +53,12 @@ void tick()
   }
 }
 
+bool needToMeasureCo2 = false;
+
 void co2Mesaure()
 {
-  co2_measure();
-  sentToTT();
+  needToMeasureCo2 = true;
+  
 }
 
 void setup() {
@@ -71,9 +73,7 @@ void setup() {
 
   init_wifi();
 
-  //co2_init();
-
-  //measureTicker.attach(5, co2Mesaure);
+  co2_init();
 }
 
 void loop() {
@@ -95,6 +95,15 @@ void loop() {
       //delay(remainingTimeBudget);
       HTTP.handleClient();
       delay(1);
+
+      if(needToMeasureCo2)
+      {
+        measureTicker.detach();
+        co2_measure();
+        sendToTT2();
+        needToMeasureCo2 = false;
+        measureTicker.attach(10, co2Mesaure);
+      }      
     }
   }
 }

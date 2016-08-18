@@ -1,11 +1,11 @@
 
 void init_wifi()
-{
-  wifiManager.setDebugOutput(true);
-  
+{  
   //reset settings - for testing
-  wifiManager.resetSettings();
+  //wifiManager.resetSettings();
   
+  wifiManager.setDebugOutput(true);
+ 
   //устанавливаем колбэк, который будет вызван при входе в конфиг режим
   wifiManager.setAPCallback(configModeCallback);
 
@@ -44,9 +44,9 @@ void connectedToWifi()
     currentSSID = WiFi.SSID();
     currentIp = ipToString(WiFi.localIP());
 
-    ticker.attach(4, tick);
+    //ticker.attach(4, tick);
     
-    HTTP_init();
+    //HTTP_init();
     
     //запускаем SSDP сервис 
     Serial.printf("Starting SSDP...\n");
@@ -54,6 +54,9 @@ void connectedToWifi()
     Serial.printf("SSDP Ready!\n");
 
     ui.transitionToFrame(1);
+    
+    Serial.printf("Start CO2 measuring\n");
+    measureTicker.attach(10, co2Mesaure);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
