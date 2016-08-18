@@ -103,7 +103,7 @@ void loop() {
         sendToTT2();
         needToMeasureCo2 = false;
         measureTicker.attach(10, co2Mesaure);
-      }      
+      }
     }
   }
 }

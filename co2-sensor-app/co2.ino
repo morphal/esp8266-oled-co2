@@ -10,6 +10,8 @@ void co2_init()
 
 void co2_measure()
 {
+  Serial.print("co2_measure");
+  
   noInterrupts();
   //wait time in usec
   unsigned long duration = pulseIn(AIQ_SENSOR_ANALOG_PIN, HIGH, SIGNAL_WAIT);

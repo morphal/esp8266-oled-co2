@@ -1,6 +1,5 @@
-const int httpPort = 8080;
+const int httpPort = 80;
 
-//const char* host = "10.168.11.224";
 const char* host = "api.thingspeak.com";
 const char* thingspeak_key = "0W9GGBE3671R7P4C";
 
@@ -32,6 +31,12 @@ void sendToTT() {
 }
 
 void sendToTT2() {
+
+  Serial.println("sendToTT2");
+  Serial.print("Connecting to ");
+  Serial.print(host);
+  Serial.println(", port:");
+  Serial.println(httpPort);
 
   // Use WiFiClient class to create TCP connections
   WiFiClient client;

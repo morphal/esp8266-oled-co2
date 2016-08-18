@@ -1,4 +1,4 @@
-#define OLED_FPS 30
+#define OLED_FPS 15
 
 /* Код  */
 enum shifting {
