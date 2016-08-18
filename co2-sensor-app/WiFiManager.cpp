@@ -71,6 +71,9 @@ void WiFiManager::addParameter(WiFiManagerParameter *p) {
 }
 
 void WiFiManager::setupConfigPortal() {
+  
+  DEBUG_WM(F("Reset dns and http server"));
+  
   dnsServer.reset(new DNSServer());
   server.reset(new ESP8266WebServer(80));
 
@@ -200,12 +203,16 @@ boolean WiFiManager::processConfigPortalEnteredData() {
     {
       return true;
     }
-      
+
+    //DEBUG_WM(F("processConfigPortalEnteredData"));
+
+    //while(!connect)
+    {
     //DNS
     dnsServer->processNextRequest();
     //HTTP
     server->handleClient();
-
+    }
     if (connect) {
       connect = false;
       delay(2000);

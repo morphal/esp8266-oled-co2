@@ -1,7 +1,7 @@
 
 void init_wifi()
 {
-  HTTP_init();
+  //HTTP_init();
    
   wifiManager.setDebugOutput(true);
   

@@ -67,13 +67,13 @@ void setup() {
   init_oled();
   ui.update();
 
-  ticker.attach(0.5, tick);
+  //ticker.attach(0.5, tick);
 
   init_wifi();
 
-  co2_init();
+  //co2_init();
 
-  measureTicker.attach(5, co2Mesaure);
+  //measureTicker.attach(5, co2Mesaure);
 }
 
 void loop() {
